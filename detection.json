@@ -1,0 +1,14 @@
+{
+  "_info": "Règles de détection des lecteurs Shorts / Reels pour SportLock. Elles s'AJOUTENT aux règles intégrées à l'appli. Mettre à jour ce fichier sur GitHub suffit : les téléphones le relisent toutes les 24 h.",
+  "updated": "2026-11-21",
+  "com.google.android.youtube": {
+    "ids": ["reel_watch_fragment_root", "reel_player_page_container", "reel_watch_player", "reel_recycler"],
+    "idParts": ["reel_watch", "reel_player", "shorts_player"],
+    "selectedTabs": ["Shorts"]
+  },
+  "com.instagram.android": {
+    "ids": ["clips_viewer_view_pager", "clips_viewer_container", "clips_viewer_root"],
+    "idParts": ["clips_viewer"],
+    "selectedTabs": ["Reels"]
+  }
+}
