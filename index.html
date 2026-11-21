@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-size:14px}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>SportLock</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="SportLock bloque TikTok, les YouTube Shorts et les Instagram Reels tant que ta séance de sport du jour n'est pas faite.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Mise en page : bandeau d'ouverture (titre + téléphone), journée type en frise horaire,
+   fonctions en grille, page confidentialité en colonne de lecture. Sombre d'abord, comme l'appli. */
+:root {
+  --bg: #0D0F14;
+  --surface: #171A21;
+  --surface-2: #232733;
+  --line: #2A2F3B;
+  --fg: #F1F3F6;
+  --muted: #9BA3AF;
+  --unlock: #34D399;
+  --lock: #F43F5E;
+  --weight: #60A5FA;
+  --on-accent: #0D0F14;
+  --lock-tint: #2A0F18;
+  --unlock-tint: #0B2A1F;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #F3F5F8; --surface: #FFFFFF; --surface-2: #E8ECF2; --line: #D6DCE5;
+    --fg: #11151C; --muted: #566070; --unlock: #0E9F6E; --lock: #E11D48; --weight: #2563EB;
+    --on-accent: #FFFFFF; --lock-tint: #FDE8EC; --unlock-tint: #E3F7EF;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #F3F5F8; --surface: #FFFFFF; --surface-2: #E8ECF2; --line: #D6DCE5;
+  --fg: #11151C; --muted: #566070; --unlock: #0E9F6E; --lock: #E11D48; --weight: #2563EB;
+  --on-accent: #FFFFFF; --lock-tint: #FDE8EC; --unlock-tint: #E3F7EF;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 1rem; line-height: 1.6;
+}
+.wrap {
+  max-width: 68rem; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--unlock); outline-offset: 3px; border-radius: 4px; }
+
+/* ---------- Barre du haut ---------- */
+.top { padding-block: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: .6rem; font-family: var(--display); font-weight: 800; font-stretch: 112%; font-size: 1.25rem; text-decoration: none; letter-spacing: -.01em; }
+.brand svg { width: 2rem; height: 2rem; flex: none; }
+.nav { display: flex; gap: 1.25rem; font-size: .95rem; font-weight: 600; }
+.nav a { text-decoration: none; color: var(--muted); }
+.nav a:hover, .nav a[aria-current="page"] { color: var(--fg); }
+
+/* ---------- Ouverture ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .85fr); gap: 3rem; align-items: center; padding-block: 3rem 4.5rem; }
+.eyebrow { font-family: var(--mono); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 {
+  font-family: var(--display); font-weight: 900; font-stretch: 68%;
+  font-size: clamp(3.4rem, 10vw, 7.2rem); line-height: .9; letter-spacing: -.01em;
+  margin: .6rem 0 1.4rem; text-transform: uppercase; text-wrap: balance;
+}
+h1 .strike { position: relative; color: var(--muted); white-space: nowrap; }
+h1 .strike::after {
+  content: ""; position: absolute; left: -2%; right: -2%; top: 52%; height: .09em;
+  background: var(--lock); transform: rotate(-4deg);
+}
+.lede { font-size: 1.15rem; color: var(--muted); max-width: 34rem; margin: 0 0 1.8rem; }
+.lede strong { color: var(--fg); font-weight: 600; }
+.cta-row { display: flex; gap: .8rem; flex-wrap: wrap; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem; border: 0; cursor: pointer;
+  font: 700 1rem var(--body); padding: .85rem 1.3rem; border-radius: 12px; text-decoration: none;
+}
+.btn-primary { background: var(--unlock); color: var(--on-accent); }
+.btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1.5px var(--line); }
+.soon { font-size: .85rem; color: var(--muted); }
+
+/* Téléphone : reproduction de l'écran d'accueil de l'appli */
+.phone {
+  justify-self: center; width: 100%; max-width: 19rem; aspect-ratio: 9 / 19;
+  background: #0D0F14; border-radius: 2.4rem; padding: .7rem;
+  box-shadow: 0 0 0 2px var(--line), 0 30px 60px -20px rgba(0,0,0,.55);
+}
+.screen {
+  height: 100%; border-radius: 1.8rem; background: #0D0F14; color: #F1F3F6;
+  padding: 1.6rem 1rem 1rem; display: flex; flex-direction: column; gap: .7rem; overflow: hidden;
+  font-size: .78rem;
+}
+.screen .date { color: #9BA3AF; font-size: .7rem; }
+.screen .hi { font-weight: 700; font-size: 1.15rem; margin-top: -.5rem; }
+.status {
+  border-radius: 1rem; padding: .9rem; border: 1.5px solid #F43F5E; background: #2A0F18;
+  transition: background .4s, border-color .4s;
+}
+.status b { display: block; font-family: var(--display); font-stretch: 100%; font-weight: 800; font-size: 1.15rem; color: #F43F5E; transition: color .4s; }
+.status span { color: #F1F3F6; }
+.status.open { border-color: #34D399; background: #0B2A1F; }
+.status.open b { color: #34D399; }
+.validate {
+  border: 0; border-radius: .9rem; padding: .85rem; background: #34D399; color: #0D0F14;
+  font: 700 .85rem var(--body); cursor: pointer;
+}
+.validate[disabled] { background: #242833; color: #F1F3F6; cursor: default; }
+.mini { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.mini div { background: #171A21; border-radius: .8rem; padding: .6rem .7rem; }
+.mini strong { display: block; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.mini small { color: #9BA3AF; font-size: .65rem; }
+.screen .hint { margin-top: auto; text-align: center; color: #9BA3AF; font-size: .65rem; }
+
+/* ---------- Sections ---------- */
+section { padding-block: 4rem; border-top: 1px solid var(--line); }
+h2 {
+  font-family: var(--display); font-weight: 800; font-stretch: 75%; text-transform: uppercase;
+  font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; margin: 0 0 .8rem; letter-spacing: .005em; text-wrap: balance;
+}
+.section-lede { color: var(--muted); max-width: 40rem; margin: 0 0 2.5rem; }
+
+/* Journée type : frise horaire */
+.day { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.day li { display: grid; grid-template-columns: 5.5rem 1.5rem minmax(0, 1fr); gap: 1rem; }
+.day time { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; padding-top: .1rem; font-variant-numeric: tabular-nums; text-align: right; }
+.rail { position: relative; display: flex; justify-content: center; }
+.rail::before { content: ""; position: absolute; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.day li:first-child .rail::before { top: .55rem; }
+.day li:last-child .rail::before { bottom: auto; height: .55rem; }
+.dot { position: relative; width: .9rem; height: .9rem; border-radius: 50%; margin-top: .35rem; background: var(--muted); box-shadow: 0 0 0 4px var(--bg); }
+.dot.lock { background: var(--lock); }
+.dot.open { background: var(--unlock); }
+.day .what { padding-bottom: 2rem; min-width: 0; }
+.day h3 { margin: 0 0 .25rem; font-size: 1.1rem; }
+.day p { margin: 0; color: var(--muted); max-width: 36rem; }
+.tag { display: inline-block; font-family: var(--mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; padding: .15rem .5rem; border-radius: 6px; margin-left: .4rem; vertical-align: .15em; }
+.tag.lock { background: var(--lock-tint); color: var(--lock); }
+.tag.open { background: var(--unlock-tint); color: var(--unlock); }
+
+/* Fonctions */
+.features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+.feature { background: var(--surface); border-radius: 18px; padding: 1.4rem; display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.feature h3 { margin: 0; font-size: 1.1rem; }
+.feature p { margin: 0; color: var(--muted); font-size: .95rem; }
+.feature .k { font-family: var(--mono); font-size: .75rem; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+.feature.wide { grid-column: span 2; }
+.chart { width: 100%; height: auto; margin-top: .5rem; }
+.chart text { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
+
+/* Bandeau final */
+.closing { display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
+.closing p { color: var(--muted); max-width: 32rem; margin: 0; }
+
+footer { border-top: 1px solid var(--line); padding-block: 2rem 3rem; color: var(--muted); font-size: .9rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+/* ---------- Confidentialité ---------- */
+.legal { padding-block: 2.5rem 4rem; }
+.legal article { max-width: 44rem; }
+.legal h1 { font-size: clamp(2.6rem, 8vw, 4.5rem); margin-bottom: .5rem; }
+.legal .updated { font-family: var(--mono); font-size: .8rem; color: var(--muted); margin: 0 0 2rem; }
+.legal h2 { font-size: 1.6rem; margin-top: 2.5rem; }
+.legal p, .legal li { color: var(--fg); }
+.legal ul { padding-left: 1.2rem; }
+.legal li { margin-bottom: .4rem; }
+.legal .muted { color: var(--muted); }
+.table-wrap { overflow-x: auto; margin: 1rem 0; }
+.legal table { border-collapse: collapse; width: 100%; min-width: 32rem; font-size: .92rem; }
+.legal th, .legal td { text-align: left; padding: .6rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.legal th { font-family: var(--mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.placeholder { background: var(--lock-tint); color: var(--lock); padding: .05rem .35rem; border-radius: 4px; font-family: var(--mono); font-size: .85em; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; padding-block: 2rem 3rem; }
+  .features { grid-template-columns: minmax(0, 1fr); }
+  .feature.wide { grid-column: auto; }
+}
+@media (max-width: 480px) {
+  .day li { grid-template-columns: 3.6rem 1rem minmax(0, 1fr); gap: .6rem; }
+  .day time { font-size: .9rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .status, .status b { transition: none; }
+}
+</style>
+</head>
+<body>
+
+
+<header class="wrap top">
+  <a class="brand" href="#">
+    <svg viewBox="0 0 108 108" aria-hidden="true"><rect width="108" height="108" rx="26" fill="#12151C"/><circle cx="54" cy="54" r="28" fill="none" stroke="#34D399" stroke-opacity=".25" stroke-width="4"/><path fill="#34D399" d="M58 30 38 58h13l-4 20 23-30H56z"/></svg>
+    SportLock
+  </a>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="#" id="nav-home">L'appli</a>
+    <a href="#confidentialite" id="nav-privacy">Confidentialité</a>
+  </nav>
+</header>
+
+<!-- ================= Page d'accueil ================= -->
+<main id="view-home">
+  <div class="wrap hero">
+    <div>
+      <div class="eyebrow">Appli Android · sport + anti-scroll</div>
+      <h1>Pas de séance,<br>pas de <span class="strike">scroll</span>.</h1>
+      <p class="lede">SportLock bloque <strong>TikTok, les YouTube Shorts et les Instagram Reels</strong> tant que ta séance du jour n'est pas faite. Tu t'entraînes, ça se débloque. Le soir à 21h30, tout se referme.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/nathan64100/sportlock/releases/latest/download/SportLock.apk" target="_blank" rel="noopener">⬇ Télécharger SportLock</a>
+        <a class="btn btn-ghost" href="#installer">Comment l'installer</a>
+        <span class="soon">Version 1.0 · APK de 66 Ko · Android 8 et plus</span>
+      </div>
+    </div>
+
+    <div class="phone" aria-label="Aperçu de l'écran d'accueil de SportLock">
+      <div class="screen">
+        <div class="date">Samedi 21 novembre</div>
+        <div class="hi">Salut 👋</div>
+        <div class="status" id="demo-status">
+          <b id="demo-title">🔒 BLOCUS ACTIF</b>
+          <span id="demo-text">Ta séance de sport du jour n'est pas encore validée.</span>
+        </div>
+        <button class="validate" id="demo-btn" type="button">✅ Valider ma séance du jour</button>
+        <div class="mini">
+          <div><strong id="demo-streak">🔥 6</strong><small>jours d'affilée</small></div>
+          <div><strong>⚖️ 88,1</strong><small>kg · objectif 80</small></div>
+        </div>
+        <div class="hint">Aperçu interactif : touche le bouton vert</div>
+      </div>
+    </div>
+  </div>
+
+  <section id="fonctionnement">
+    <div class="wrap">
+      <h2>Une journée avec SportLock</h2>
+      <p class="section-lede">Le blocus suit ta journée. Il n'y a rien à activer chaque matin : il est en place par défaut et c'est ta séance qui l'enlève.</p>
+      <ol class="day">
+        <li>
+          <time>07:00</time><span class="rail"><span class="dot lock"></span></span>
+          <div class="what"><h3>Réveil <span class="tag lock">Blocus</span></h3>
+            <p>Tu ouvres TikTok par réflexe : écran de blocus plein écran. Les applis utiles (messages, banque, GPS) restent libres.</p></div>
+        </li>
+        <li>
+          <time>12:30</time><span class="rail"><span class="dot lock"></span></span>
+          <div class="what"><h3>Pause déjeuner <span class="tag lock">Blocus</span></h3>
+            <p>Tu veux vraiment débloquer ? Il faut rester 60 secondes sur un exercice de respiration. Si tu quittes l'écran, le compteur repart à zéro.</p></div>
+        </li>
+        <li>
+          <time>18:40</time><span class="rail"><span class="dot open"></span></span>
+          <div class="what"><h3>Séance faite <span class="tag open">Débloqué</span></h3>
+            <p>60 min de home trainer en zone 2. Tu valides en un appui, ou ta séance arrive toute seule depuis Garmin, Zwift ou Strava.</p></div>
+        </li>
+        <li>
+          <time>21:30</time><span class="rail"><span class="dot lock"></span></span>
+          <div class="what"><h3>Couvre-feu numérique <span class="tag lock">Blocus</span></h3>
+            <p>Tout se rebloque jusqu'au lendemain, séance ou pas. L'heure se règle, mais seulement plus tôt pendant le blocus.</p></div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Ce qu'il y a dedans</h2>
+      <p class="section-lede">Une seule appli pour le sport, le poids et le temps d'écran. Tout reste sur ton téléphone.</p>
+      <div class="features">
+        <div class="feature">
+          <span class="k">Vidéos courtes</span>
+          <h3>Les Shorts bloqués, YouTube libre</h3>
+          <p>Seul le lecteur Shorts est bloqué. Tes vidéos classiques restent accessibles pour regarder une séance pendant le home trainer. Même règle pour les Reels d'Instagram.</p>
+        </div>
+        <div class="feature">
+          <span class="k">Moins de 10 secondes</span>
+          <h3>Valider sa séance</h3>
+          <p>Sport, durée, intensité (zone 2, seuil, récupération) et ressenti. Tes derniers choix sont gardés : souvent, un seul appui suffit.</p>
+        </div>
+        <div class="feature">
+          <span class="k">Synchro auto</span>
+          <h3>Garmin, Zwift, Strava</h3>
+          <p>Via Santé Connect ou ton compte Strava : une activité de 15 min ou plus valide la journée sans rien toucher.</p>
+        </div>
+        <div class="feature wide">
+          <span class="k">Suivi du poids</span>
+          <h3>De 92 à 80 kg, pesée après pesée</h3>
+          <p>Ajoute ta pesée en deux appuis. La courbe montre où tu en es et la date estimée d'arrivée à l'objectif.</p>
+          <svg class="chart" viewBox="0 0 330 170" role="img" aria-label="Exemple de courbe de poids : de 92 kg à 87,5 kg en 8 semaines, objectif 80 kg">
+            <defs>
+              <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--weight)" stop-opacity=".35"/>
+                <stop offset="1" stop-color="var(--weight)" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- échelle : y = 10 + (93 - kg) / 14 × 130 ; x = 40 + semaine × 34 -->
+            <g stroke="var(--line)" stroke-width="1">
+              <line x1="40" x2="320" y1="19.3" y2="19.3"/>
+              <line x1="40" x2="320" y1="56.4" y2="56.4"/>
+              <line x1="40" x2="320" y1="93.6" y2="93.6"/>
+            </g>
+            <text x="32" y="22.5" text-anchor="end">92</text>
+            <text x="32" y="59.6" text-anchor="end">88</text>
+            <text x="32" y="96.8" text-anchor="end">84</text>
+            <text x="32" y="133.9" text-anchor="end">80</text>
+            <line x1="40" x2="320" y1="130.7" y2="130.7" stroke="var(--unlock)" stroke-width="2" stroke-dasharray="7 5"/>
+            <text x="320" y="124" text-anchor="end" style="fill: var(--unlock)">Objectif 80 kg</text>
+            <path fill="url(#g)" d="M40 19.3 L74 24.9 L108 29.5 L142 37 L176 39.7 L210 47.1 L244 50.9 L278 55.5 L312 61.1 L312 150 L40 150 Z"/>
+            <path fill="none" stroke="var(--weight)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" d="M40 19.3 L74 24.9 L108 29.5 L142 37 L176 39.7 L210 47.1 L244 50.9 L278 55.5 L312 61.1"/>
+            <circle cx="312" cy="61.1" r="5" fill="var(--weight)" stroke="var(--surface)" stroke-width="2"/>
+            <text x="304" y="80" text-anchor="end" style="fill: var(--fg); font-weight: 700">87,5 kg</text>
+            <text x="40" y="165">sem. 0</text>
+            <text x="312" y="165" text-anchor="end">sem. 8 · exemple</text>
+          </svg>
+        </div>
+        <div class="feature">
+          <span class="k">Régularité</span>
+          <h3>Jours et semaines d'affilée</h3>
+          <p>Un compteur de jours consécutifs, ton record, et les semaines où tu as tenu ton objectif (3 séances par défaut).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="installer">
+    <div class="wrap">
+      <h2>Installer SportLock</h2>
+      <p class="section-lede">SportLock n'est pas encore sur Google Play. Tu l'installes directement depuis ce site, en trois étapes, depuis ton téléphone Android.</p>
+      <ol class="day">
+        <li>
+          <time>1</time><span class="rail"><span class="dot open"></span></span>
+          <div class="what"><h3>Télécharge le fichier</h3>
+            <p>Sur ton téléphone, touche « Télécharger SportLock ». Le fichier <code>SportLock.apk</code> arrive dans tes téléchargements.</p></div>
+        </li>
+        <li>
+          <time>2</time><span class="rail"><span class="dot open"></span></span>
+          <div class="what"><h3>Ouvre-le et autorise l'installation</h3>
+            <p>Android demande d'autoriser les « applis inconnues » pour ton navigateur ou l'appli Fichiers : accepte, puis touche « Installer ».</p></div>
+        </li>
+        <li>
+          <time>3</time><span class="rail"><span class="dot open"></span></span>
+          <div class="what"><h3>Active le blocage</h3>
+            <p>Au premier lancement, l'écran d'accueil t'emmène dans les bons réglages. Si l'interrupteur d'accessibilité est grisé : infos de l'appli → menu ⋮ → « Autoriser les paramètres restreints ».</p></div>
+        </li>
+      </ol>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/nathan64100/sportlock/releases/latest/download/SportLock.apk" target="_blank" rel="noopener">⬇ Télécharger SportLock</a>
+        <a class="btn btn-ghost" href="https://github.com/nathan64100/sportlock/releases" target="_blank" rel="noopener">Toutes les versions</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap closing">
+      <div>
+        <h2>Strict, exprès</h2>
+        <p>Pendant le blocus, les réglages ne peuvent que se durcir : impossible de retirer une appli de la liste ou de repousser le couvre-feu sur un coup de tête.</p>
+      </div>
+      <a class="btn btn-ghost" href="#confidentialite">Lire la politique de confidentialité</a>
+    </div>
+  </section>
+</main>
+
+<!-- ================= Politique de confidentialité ================= -->
+<main id="view-privacy" class="wrap legal" hidden>
+  <article>
+    <div class="eyebrow">SportLock · Android</div>
+    <h1>Confidentialité</h1>
+    <p class="updated">Dernière mise à jour : 21 novembre 2026</p>
+
+    <p>SportLock est une application Android de suivi sportif et de limitation du temps d'écran. Cette page explique quelles données l'application utilise, pourquoi, et où elles sont stockées.</p>
+    <p><strong>En bref :</strong> SportLock n'a pas de serveur. Le développeur ne reçoit aucune de tes données. Il n'y a ni publicité, ni statistiques d'utilisation, ni revente de données.</p>
+
+    <h2>Données stockées sur ton téléphone</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Donnée</th><th>Pourquoi</th><th>Où</th></tr></thead>
+        <tbody>
+          <tr><td>Séances (sport, durée, intensité, ressenti, date)</td><td>Valider la journée, historique, régularité</td><td>Uniquement sur le téléphone</td></tr>
+          <tr><td>Pesées et objectif de poids</td><td>Graphique d'évolution</td><td>Uniquement sur le téléphone</td></tr>
+          <tr><td>Liste des applis à bloquer, réglages</td><td>Faire fonctionner le blocus</td><td>Uniquement sur le téléphone</td></tr>
+          <tr><td>Identifiants et jetons Strava (si tu connectes Strava)</td><td>Lire tes activités Strava</td><td>Uniquement sur le téléphone</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Service d'accessibilité</h2>
+    <p>SportLock utilise le service d'accessibilité d'Android (API AccessibilityService) pour une seule fonction : savoir quelle application est affichée à l'écran et repérer le lecteur YouTube Shorts ou Instagram Reels, afin d'afficher l'écran de blocus.</p>
+    <ul>
+      <li>Ce service n'est activé que si tu l'actives toi-même, après une explication dans l'application.</li>
+      <li>Il ne lit pas et n'enregistre pas ce que tu tapes, tes messages, tes mots de passe ou le contenu des pages.</li>
+      <li>Aucune information obtenue par ce service ne quitte le téléphone.</li>
+      <li>Tu peux le désactiver à tout moment dans Paramètres → Accessibilité.</li>
+    </ul>
+
+    <h2>Santé Connect</h2>
+    <p>Si tu l'autorises, SportLock lit dans Santé Connect <strong>uniquement tes séances d'exercice</strong> (type de sport, heure de début et de fin) de la journée en cours. Il s'en sert pour valider automatiquement ta séance et l'ajouter à ton historique.</p>
+    <ul>
+      <li>Autorisations demandées : lecture des exercices, et lecture en arrière-plan pour valider la séance même quand l'appli est fermée.</li>
+      <li>SportLock n'écrit rien dans Santé Connect et ne lit aucune autre donnée de santé (rythme cardiaque, sommeil, poids, etc.).</li>
+      <li>Ces données ne sont jamais envoyées hors du téléphone, ni utilisées pour de la publicité.</li>
+      <li>Tu peux retirer l'accès à tout moment dans les réglages de Santé Connect.</li>
+    </ul>
+    <p class="muted">L'utilisation des données reçues de Santé Connect respecte les règles d'utilisation des autorisations Santé Connect, y compris les exigences d'utilisation limitée.</p>
+
+    <h2>Strava (facultatif)</h2>
+    <p>Si tu connectes ton compte Strava, SportLock contacte directement les serveurs de Strava (strava.com) depuis ton téléphone pour lire tes activités du jour (type de sport, heure de début, durée). Aucune donnée ne transite par un autre serveur. La connexion se coupe dans les réglages de SportLock (« Se déconnecter ») ou depuis ton compte Strava. L'utilisation de Strava est soumise à la <a href="https://www.strava.com/legal/privacy" target="_blank" rel="noopener">politique de confidentialité de Strava</a>.</p>
+
+    <h2>Autres autorisations</h2>
+    <ul>
+      <li><strong>Liste des applis installées</strong> : pour te laisser choisir lesquelles bloquer.</li>
+      <li><strong>Internet</strong> : seulement pour la synchronisation Strava.</li>
+      <li><strong>Démarrage du téléphone</strong> : pour relancer la synchronisation automatique après un redémarrage.</li>
+    </ul>
+
+    <h2>Partage et conservation</h2>
+    <p>Aucune donnée n'est partagée avec des tiers. Les données restent sur le téléphone tant que l'application est installée. Pour tout supprimer : Paramètres Android → Applications → SportLock → Stockage → Effacer les données, ou désinstalle l'application.</p>
+
+    <h2>Enfants</h2>
+    <p>SportLock ne s'adresse pas aux enfants de moins de 13 ans et ne collecte sciemment aucune donnée les concernant.</p>
+
+    <h2>Changements</h2>
+    <p>Si cette politique change, la date en haut de la page sera mise à jour et les changements importants seront signalés dans l'application.</p>
+
+    <h2>Contact</h2>
+    <p>Pour toute question sur SportLock ou sur tes données : <a href="mailto:nathanjuzgado475@gmail.com">nathanjuzgado475@gmail.com</a></p>
+  </article>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>SportLock · appli Android</span>
+    <a href="#confidentialite">Politique de confidentialité</a>
+  </div>
+</footer>
+
+<script>
+// Deux vues sur une seule page : accueil (par défaut) et #confidentialite
+(function () {
+  var home = document.getElementById('view-home');
+  var privacy = document.getElementById('view-privacy');
+  var navHome = document.getElementById('nav-home');
+  var navPrivacy = document.getElementById('nav-privacy');
+  function route() {
+    var h = location.hash.replace('#', '');
+    var isPrivacy = h === 'confidentialite';
+    privacy.hidden = !isPrivacy;
+    home.hidden = isPrivacy;
+    navPrivacy.setAttribute('aria-current', isPrivacy ? 'page' : 'false');
+    navHome.setAttribute('aria-current', isPrivacy ? 'false' : 'page');
+    if (isPrivacy) window.scrollTo(0, 0);
+    else if (h) { var t = document.getElementById(h); if (t) t.scrollIntoView(); }
+  }
+  window.addEventListener('hashchange', route);
+  route();
+
+  // Aperçu interactif du téléphone : valider la séance lève le blocus
+  var status = document.getElementById('demo-status');
+  var title = document.getElementById('demo-title');
+  var text = document.getElementById('demo-text');
+  var btn = document.getElementById('demo-btn');
+  var streak = document.getElementById('demo-streak');
+  var open = false;
+  btn.addEventListener('click', function () {
+    open = !open;
+    status.classList.toggle('open', open);
+    title.textContent = open ? '🔓 DÉBLOQUÉ' : '🔒 BLOCUS ACTIF';
+    text.textContent = open
+      ? 'Séance validée, profite ! Blocus automatique à 21h30.'
+      : "Ta séance de sport du jour n'est pas encore validée.";
+    btn.textContent = open ? '↺ Revoir le blocus' : '✅ Valider ma séance du jour';
+    streak.textContent = open ? '🔥 7' : '🔥 6';
+  });
+})();
+</script>
+
+</body>
+</html>
